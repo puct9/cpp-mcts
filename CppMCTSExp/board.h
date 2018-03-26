@@ -21,8 +21,8 @@ public:
 
 	void print();
 	void reset();
-	void playMove(int);
 	void playMove(int, int);
+	void undoMove();
 	void replayMoves();
 	void manOverridePlayedPieces(std::vector<std::array<int, 2>> ov);
 	int checkWin();

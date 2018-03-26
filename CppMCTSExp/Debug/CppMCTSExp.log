@@ -1,10 +1,3 @@
-﻿  CppMCTSExp.cpp
-  board.cpp
-c:\users\thejh\documents\visual studio 2017\projects\cppmctsexp\cppmctsexp\board.cpp(197): warning C4018: '<': signed/unsigned mismatch
-  node.cpp
-c:\users\thejh\documents\visual studio 2017\projects\cppmctsexp\cppmctsexp\node.cpp(71): warning C4244: 'argument': conversion from 'double' to 'const unsigned int', possible loss of data
-c:\users\thejh\documents\visual studio 2017\projects\cppmctsexp\cppmctsexp\node.cpp(72): warning C4244: 'argument': conversion from 'double' to 'const unsigned int', possible loss of data
-  search.cpp
-c:\users\thejh\documents\visual studio 2017\projects\cppmctsexp\cppmctsexp\search.cpp(23): warning C4018: '<': signed/unsigned mismatch
-  Generating Code...
+﻿  search.cpp
+c:\users\thejh\documents\visual studio 2017\projects\cppmctsexp\cppmctsexp\search.cpp(57): warning C4018: '>': signed/unsigned mismatch
   CppMCTSExp.vcxproj -> C:\Users\thejh\Documents\Visual Studio 2017\Projects\CppMCTSExp\Debug\CppMCTSExp.exe

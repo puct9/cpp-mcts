@@ -16,7 +16,6 @@ Board::Board()
 
 Board::Board(const int s)
 {
-	std::cout << "Maximum board size is 19" << std::endl;
 	size = (s < 19) ? s : 19;
 	reset();
 }
@@ -50,10 +49,6 @@ void Board::reset()
 	playedPieces.clear();
 }
 
-void Board::playMove(int l)
-{
-	playMove(l / size, l % size);
-}
 
 void Board::playMove(int r, int c)
 {
@@ -67,6 +62,18 @@ void Board::playMove(int r, int c)
 	lastPlaced[1] = c;
 	std::array<int, 2> lp{ {r,c} };
 	playedPieces.push_back(lp);
+}
+
+void Board::undoMove()
+{
+	board[lastPlaced[0]][lastPlaced[1]] = 0;
+	--moves;
+	playedPieces.pop_back();
+	if (playedPieces.size())
+	{
+		lastPlaced[0] = playedPieces[playedPieces.size() - 1][0];
+		lastPlaced[1] = playedPieces[playedPieces.size() - 1][1];
+	}
 }
 
 void Board::replayMoves()
@@ -210,15 +217,27 @@ std::vector<std::array<int, 2>> Board::getObvMoves() //TODO
 		int cpR = piece[0];
 		int cpC = piece[1];
 
-		int direc[8][2] = { { cpR - 1, cpC - 1 }, { cpR - 1, cpC }, { cpR - 1, cpC + 1 },
-							{ cpR, cpC - 1 }, { cpR, cpC + 1 },
-							{ cpR + 1, cpC - 1 }, { cpR + 1, cpC }, { cpR + 1, cpC + 1 } };
-		for (int i = 0; i < 8; ++i)
+		std::vector<std::array<int, 2>> direcs;
+		// Above
+		direcs.push_back({ cpR - 1, cpC - 1 });
+		direcs.push_back({ cpR - 1, cpC });
+		direcs.push_back({ cpR - 1, cpC + 1 });
+		// Beside
+		direcs.push_back({ cpR, cpC - 1 });
+		direcs.push_back({ cpR, cpC + 1 });
+		// Below
+		direcs.push_back({ cpR + 1, cpC - 1 });
+		direcs.push_back({ cpR + 1, cpC });
+		direcs.push_back({ cpR + 1, cpC + 1 });
+		for (const std::array<int, 2>& direc : direcs)
 		{
-
+			if (std::find(adjCells.begin(), adjCells.end(), direc) != adjCells.end()) continue;
+			if (direc[0] < 0 || direc[0] >= size || direc[1] < 0 || direc[1] >= size) continue;
+			if (board[direc[0]][direc[1]]) continue;
+			adjCells.push_back(direc);
 		}
 	}
 
-	return std::vector<std::array<int, 2>>();
+	return adjCells;
 }
 

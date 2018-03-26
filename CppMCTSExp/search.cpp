@@ -5,33 +5,72 @@
 #include <vector>
 
 
-void search(Board * inBoard)
+void search(Board inBoard, int team)
 {
-	search(inBoard, 2000);
+	search(inBoard, team, 10000);
 }
 
-void search(Board * inBoard, unsigned long iterations)
+void search(Board inBoard, int team, unsigned long iterations)
 {
-	Board * board = new Board(*inBoard);
-	if (!board->getMoves())
+	std::cout << "test" << std::endl;
+	if (!inBoard.getMoves())
 	{
-		std::cout << board->getSize() / 2 << "," << board->getSize() / 2 << std::endl;
+		std::cout << inBoard.getSize() / 2 << "," << inBoard.getSize() / 2 << std::endl;
 	}
+
 	Node topNode;
-	// Get things kicked off; run a sim.
+	topNode.team_multiplier = -team;
 
-	for (int iteration = 0; iteration < iterations; ++iteration)
+	/////////////////////////////// M C T S //////////////////////////////////
+	for (unsigned long iteration = 0; iteration < iterations; ++iteration)
 	{
-		std::unique_ptr<Node>* bestLeaf = topNode.SelectBest();
+		//if (iteration % 100) std::cout << iteration << std::endl;
+		Board tmp_board{ inBoard };
+		Node* bestLeaf = topNode.SelectBest(&tmp_board);
+		if (bestLeaf->terminal)
+		{
+			bestLeaf->BackPropagateScore(bestLeaf->termscore);
+			continue;
+		}
+		if (!bestLeaf->visits)
+		{
+			int score = simulation(tmp_board, false);
+			bestLeaf->BackPropagateScore(score);
+			continue;
+		}
+		for (const std::array<int, 2>&move : tmp_board.getObvMoves())
+		{
+			tmp_board.playMove(move[0], move[1]);
+			int termscore = tmp_board.checkWin();
+			if (termscore) bestLeaf->CreateChild(topNode.visits, move[0], move[1], termscore);
+			bestLeaf->CreateChild(topNode.visits, move[0], move[1]);
+			// Undo the move
+			tmp_board.undoMove();
+		}
 	}
+
+	// Suggest move
+	int bestmove[2];
+	unsigned long maxvisits = 0;
+	for (const std::unique_ptr<Node>& move : topNode.children)
+	{
+		if (move->visits > maxvisits)
+		{
+			maxvisits = move->visits;
+			bestmove[0] = move->move_to[0];
+			bestmove[1] = move->move_to[1];
+		}
+	}
+	std::cout << "Suggest: " << bestmove[0] << "," << bestmove[1] << std::endl;
 }
 
-void simulation(Board * board)
+
+int simulation(Board board)
 {
-	simulation(board, false);
+	return simulation(board, true);
 }
 
-void simulation(Board * board, bool rebuild)
+int simulation(Board board, bool rebuild)
 {
 	if (rebuild)
 	{
@@ -40,19 +79,23 @@ void simulation(Board * board, bool rebuild)
 		       for the purpose of this function, it will suffice
 		*/
 		std::vector<std::array<int, 2>> tmp;
-		for (int r = 0; r < board->getSize(); ++r)
+		for (int r = 0; r < board.getSize(); ++r)
 		{
-			for (int c = 0; c < board->getSize(); ++c)
+			for (int c = 0; c < board.getSize(); ++c)
 			{
-				if (board->getBoardPos(r, c)) tmp.push_back(std::array<int, 2>{ r, c });
+				if (board.getBoardPos(r, c)) tmp.push_back(std::array<int, 2>{ r, c });
 			}
 		}
-		board->manOverridePlayedPieces(tmp);
+		board.manOverridePlayedPieces(tmp);
 	}
 
-	while (board->getMoves() < pow(board->getSize(), 2))
+	while (board.getMoves() < pow(board.getSize(), 2))
 	{
 		// Make a random move
-		std::vector<std::array<int, 2>> choices = board->getObvMoves();
+		std::vector<std::array<int, 2>> choices = board.getObvMoves();
+		std::array<int, 2> randMove = choices[rand() % choices.size()];
+		board.playMove(randMove[0], randMove[1]);
+		if (board.checkWin()) return board.checkWin();
 	}
+	return 0;
 }

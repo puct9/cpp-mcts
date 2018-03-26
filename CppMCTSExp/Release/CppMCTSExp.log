@@ -1,0 +1,9 @@
+﻿  stdafx.cpp
+  board.cpp
+  CppMCTSExp.cpp
+  node.cpp
+  search.cpp
+  Generating code
+  All 258 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  CppMCTSExp.vcxproj -> C:\Users\thejh\Documents\Visual Studio 2017\Projects\CppMCTSExp\Release\CppMCTSExp.exe
